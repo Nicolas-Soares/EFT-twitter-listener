@@ -18,6 +18,8 @@ async function handle() {
     const lastPost = response.data[0]
     const lastPostUrl = lastPost.entities.urls[0].expanded_url
 
+    const botLastSentMessage = await getBotLastSentMessageOnDiscord()
+
     // Format and send message to discord
     const discordMessagePreset = getRandomMessagePreset()
     const message = `${discordMessagePreset} ${lastPostUrl}`
@@ -33,6 +35,27 @@ async function handle() {
 function getRandomMessagePreset() {
   const randomIndex = Math.floor(Math.random() * messagePresets.length);
   return messagePresets[randomIndex];
+}
+
+async function getBotLastSentMessageOnDiscord() {
+  const limit = 100;
+
+  let oldestMessageId;
+  let botLastSentMessage;
+
+  do {
+    const getDiscordMessagesResponse = await axiosService.getDiscordMessages({
+      limit,
+      messageId: oldestMessageId
+    });
+    const lastMessagesSentOnChannel = getDiscordMessagesResponse.data
+    
+    botLastSentMessage = lastMessagesSentOnChannel.find(message => message.author.id === process.env.DISCORD_BOT_ID);
+    
+    if (botLastSentMessage) return botLastSentMessage;
+
+    oldestMessageId = lastMessagesSentOnChannel[limit - 1].id
+  } while (!botLastSentMessage);
 }
 
 handle()

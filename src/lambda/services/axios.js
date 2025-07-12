@@ -38,13 +38,33 @@ class AxiosService {
 
   async sendDiscordMessage({ message }) {
     try {
+      const url = `${this.discordBaseUrl}/channels/${this.discordChannelId}/messages`
       const headers = { Authorization: this.discordBotToken }
-      const url = `${this.discordBaseUrl}/channels/${this.discordChannelId}/messages?limit=1`
   
       const response = await axios.post(
         url,
         { content: message },
         { headers }
+      )
+
+      return response
+    } catch (error) {
+      const err = new Error('Failed to send Discord message');
+            err.details = error
+      throw err;
+    }
+  }
+
+  async getDiscordMessages({ limit, messageId = null }) {
+    try {
+      const url = `${this.discordBaseUrl}/channels/${this.discordChannelId}/messages?`
+      const headers = { Authorization: this.discordBotToken }
+      const params = { limit }
+      messageId && (params.before = messageId)
+  
+      const response = await axios.get(
+        url,
+        { headers, params }
       )
 
       return response
