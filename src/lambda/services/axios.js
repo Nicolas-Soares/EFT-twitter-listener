@@ -49,7 +49,7 @@ class AxiosService {
 
       return response
     } catch (error) {
-      const err = new Error('Failed send Discord message');
+      const err = new Error('Failed to send Discord message');
             err.details = error
       throw err;
     }
