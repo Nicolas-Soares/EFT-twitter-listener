@@ -7,3 +7,6 @@ package-lock.json
 
 # VSCode
 .vscode/
+
+# Test files
+mocks/
