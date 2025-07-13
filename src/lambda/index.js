@@ -18,7 +18,15 @@ async function handle() {
     const lastPost = response.data[0]
     const lastPostUrl = lastPost.entities.urls[0].expanded_url
 
+    // Validate if post was already sent
     const botLastSentMessage = await getBotLastSentMessageOnDiscord()
+    const isLastPostAlreadySent = botLastSentMessage.content.includes(lastPostUrl)
+    if (isLastPostAlreadySent) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify("Post already sent"),
+      };
+    }
 
     // Format and send message to discord
     let discordMessagePreset = getRandomMessagePreset()
@@ -29,8 +37,13 @@ async function handle() {
     const message = `${discordMessagePreset} ${lastPostUrl}`
     const sendDiscordMessageResponse = await axiosService.sendDiscordMessage({ message })
 
-    console.log('SEND DISCORD MESSAGE')
-    console.log(sendDiscordMessageResponse)
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: 'Message sent successfully',
+        discordMessage: sendDiscordMessageResponse,
+      }),
+    };
   } catch (error) {
     console.error('ERROR', error)
   }
