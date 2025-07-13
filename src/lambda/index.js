@@ -21,7 +21,11 @@ async function handle() {
     const botLastSentMessage = await getBotLastSentMessageOnDiscord()
 
     // Format and send message to discord
-    const discordMessagePreset = getRandomMessagePreset()
+    let discordMessagePreset = getRandomMessagePreset()
+    if (discordMessagePreset.includes('userId')) {
+      discordMessagePreset = discordMessagePreset.replace('userId', process.env.GANSO_DISCORD_USER_ID);
+    }
+    
     const message = `${discordMessagePreset} ${lastPostUrl}`
     const sendDiscordMessageResponse = await axiosService.sendDiscordMessage({ message })
 
@@ -42,20 +46,26 @@ async function getBotLastSentMessageOnDiscord() {
 
   let oldestMessageId;
   let botLastSentMessage;
+  
+  try {
+    do {
+      const getDiscordMessagesResponse = await axiosService.getDiscordMessages({
+        limit,
+        messageId: oldestMessageId
+      });
 
-  do {
-    const getDiscordMessagesResponse = await axiosService.getDiscordMessages({
-      limit,
-      messageId: oldestMessageId
-    });
-    const lastMessagesSentOnChannel = getDiscordMessagesResponse.data
-    
-    botLastSentMessage = lastMessagesSentOnChannel.find(message => message.author.id === process.env.DISCORD_BOT_ID);
-    
-    if (botLastSentMessage) return botLastSentMessage;
-
-    oldestMessageId = lastMessagesSentOnChannel[limit - 1].id
-  } while (!botLastSentMessage);
+      const lastMessagesSentOnChannel = getDiscordMessagesResponse.data
+      
+          botLastSentMessage = lastMessagesSentOnChannel.find(message => message.author.id === process.env.DISCORD_BOT_ID);
+      if (botLastSentMessage) return botLastSentMessage;
+  
+      oldestMessageId = lastMessagesSentOnChannel[limit - 1].id
+    } while (!botLastSentMessage);
+  } catch (error) {
+    const err = new Error('Error getting bot last sent message on Discord')
+          err.details = error
+    throw err;
+  }
 }
 
 handle()
