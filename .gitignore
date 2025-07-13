@@ -10,3 +10,6 @@ package-lock.json
 
 # Test files
 mocks/
+
+# Other
+.terraform/
