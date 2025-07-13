@@ -41,7 +41,7 @@ async function handle() {
       statusCode: 200,
       body: JSON.stringify({
         message: 'Message sent successfully',
-        discordMessage: sendDiscordMessageResponse,
+        discordMessage: sendDiscordMessageResponse.data,
       }),
     };
   } catch (error) {
