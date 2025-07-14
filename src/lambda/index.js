@@ -5,11 +5,11 @@ require('dotenv').config();
 const messagePresets = require('./messages/messages-presets.json');
 
 // SERVICES
-const axiosService = require('./services/axios');
+const AxiosService = require('./services/axios');
 
 async function handle() {
   try {
-    const axiosService = new axiosService();
+    const axiosService = new AxiosService();
     const response = await axiosService.getTweets({ userId: '759683995563094017' });
     
     // const response = examplePayload
