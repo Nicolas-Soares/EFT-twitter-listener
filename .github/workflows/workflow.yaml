@@ -22,9 +22,13 @@ jobs:
         with:
           terraform_version: 1.12.2
       
+      - name: Copy package.json to lambda zip
+        run: cp package.json src/lambda/
+
       - name: Zip lambda function
         run: |
-          zip lambda.zip ./src/lambda
+          (cd src/lambda && zip -r ../../lambda.zip .)
+          cd ../../
       
       - name: Terraform flow
         run: |
