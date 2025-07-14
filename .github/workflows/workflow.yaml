@@ -25,6 +25,12 @@ jobs:
       - name: Copy package.json to lambda zip
         run: cp package.json src/lambda/
 
+      - name: Install dependencies
+        run: |
+          cd src/lambda
+          npm install
+          cd ../../
+
       - name: Zip lambda function
         run: |
           (cd src/lambda && zip -r ../../lambda.zip .)
