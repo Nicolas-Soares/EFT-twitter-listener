@@ -12,12 +12,12 @@ class AxiosService {
   async getTweets({ userId }) {
     try {
       const params = { 'tweet.fields': 'entities' };
-      const header = { Authorization: this.twitterBearerToken }
+      const headers = { Authorization: this.twitterBearerToken }
       const url = `${this.twitterBaseUrl}/users/${userId}/tweets`
   
       const response = await axios.get(
         url,
-        { header, params }
+        { headers, params }
       )
       
       return response

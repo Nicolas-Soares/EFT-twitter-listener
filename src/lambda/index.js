@@ -5,18 +5,19 @@ require('dotenv').config();
 const messagePresets = require('./messages/messages-presets.json');
 
 // SERVICES
-const AxiosService = require('./services/axios');
+const axiosService = require('./services/axios');
 
 async function handle() {
   try {
-    const axiosService = new AxiosService();
-    const response = await axiosService.getTweets({ userId: '759683995563094017' });
-    
+    const userId = '759683995563094017'
+    const userName = 'tarkov'
+
+    const response = await axiosService.getTweets({ userId });
     // const response = examplePayload
 
     // Get last tweet URL
-    const lastPost = response.data[0]
-    const lastPostUrl = lastPost.entities.urls[0].expanded_url
+    const lastPostId = response.data.data[0].id
+    const lastPostUrl = `https://x.com/${userName}/status/${lastPostId}`
 
     // Validate if post was already sent
     const botLastSentMessage = await getBotLastSentMessageOnDiscord()
