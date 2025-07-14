@@ -10,7 +10,7 @@ variable "lambdaFunctioName" {
 
 variable "lambdaFunctionDefaultRole" {
   type    = string
-  default = "lambda_exec_role_eft_twitter_listener"
+  default = "lambda_exec_role_gar"
 }
 
 # APP ENV VARIABLES
