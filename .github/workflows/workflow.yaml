@@ -25,7 +25,7 @@ jobs:
       - name: Zip lambda function
         run: |
           cd ./src
-          zip lambda.zip ./lambda
+          zip lambda.zip ./src/lambda
           cd ..
       
       - name: Terraform flow
