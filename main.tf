@@ -13,33 +13,10 @@ provider "aws" {
   region = var.awsRegion
 }
 
-# ROLES
-resource "aws_iam_role" "lambda_exec_eft_twitter_listener" {
-  name = var.lambdaFunctionDefaultRole
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Principal = {
-        Service = "lambda.amazonaws.com"
-      },
-      Effect = "Allow",
-      Sid    = ""
-    }]
-  })
-}
-
-# POLICY
-resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
-  role       = aws_iam_role.lambda_exec_eft_twitter_listener.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
 # LAMBDA FUNCTION DEFINITION
 resource "aws_lambda_function" "eft_twitter_listener" {
   function_name = var.lambdaFunctioName
-  role          = var.lambdaFunctionDefaultRole
+  role          = var.lambdaFunctionRoleArn
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   filename      = "lambda.zip"

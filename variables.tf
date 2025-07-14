@@ -8,9 +8,9 @@ variable "lambdaFunctioName" {
   default = "EFT-Twitter-Listener-Lambda"
 }
 
-variable "lambdaFunctionDefaultRole" {
-  type    = string
-  default = "lambda_exec_role_gar"
+variable "lambdaFunctionRoleArn" {
+  type = string
+  default = "arn:aws:iam::554014170727:role/lambda_exec_role_gar"
 }
 
 # APP ENV VARIABLES
