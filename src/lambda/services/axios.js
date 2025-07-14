@@ -19,14 +19,6 @@ class AxiosService {
         url,
         { header, params }
       )
-
-      // const response = await axios.get(
-    //   TWITTER_BASE_URL,
-    //   {
-    //     header: { Authorization: TWITTER_BEARER_TOKEN },
-    //     params: { 'tweet.fields': 'entities' }
-    //   }
-    // )
       
       return response
     } catch (error) {

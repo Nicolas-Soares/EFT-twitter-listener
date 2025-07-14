@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 // MOCKS
-const examplePayload = require('../../mocks/example-payload.json');
+// const examplePayload = require('../../mocks/example-payload.json');
 const messagePresets = require('./messages/messages-presets.json');
 
 // SERVICES
@@ -9,10 +9,10 @@ const axiosService = require('./services/axios');
 
 async function handle() {
   try {
-    // const axiosService = new axiosService();
-    // const response = await axiosService.getTweets({ userId: '759683995563094017' });
+    const axiosService = new axiosService();
+    const response = await axiosService.getTweets({ userId: '759683995563094017' });
     
-    const response = examplePayload
+    // const response = examplePayload
 
     // Get last tweet URL
     const lastPost = response.data[0]
@@ -81,11 +81,7 @@ async function getBotLastSentMessageOnDiscord() {
   }
 }
 
-handle()
-
-// exports.handler = async (event) => {
-//   return {
-//     statusCode: 200,
-//     body: JSON.stringify("Olá do Lambda!"),
-//   };
-// };
+exports.handler = async (event) => {
+  const response = await handle();
+  return response
+};
