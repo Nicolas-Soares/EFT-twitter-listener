@@ -1,0 +1,49 @@
+name: CI
+
+on: push
+
+jobs:
+  deploy-lambda-function:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install and configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with: 
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+      
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.12.2
+      
+      - name: Zip lambda function
+        run: |
+          cd ./src
+          zip lambda.zip ./lambda
+          cd ..
+      
+      - name: Terraform flow
+        run: |
+          terraform init
+          terraform plan \
+            -var="TWITTER_TOKEN=${{ secrets.TWITTER_TOKEN }}" \
+            -var="TWITTER_BASE_URL=${{ secrets.TWITTER_BASE_URL }}" \
+            -var="DISCORD_BASE_URL=${{ secrets.DISCORD_BASE_URL }}" \
+            -var="DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" \
+            -var="DISCORD_DEFAULT_CHANNEL_ID=${{ secrets.DISCORD_DEFAULT_CHANNEL_ID }}" \
+            -var="DISCORD_BOT_ID=${{ secrets.DISCORD_BOT_ID }}" \
+            -var="GANSO_DISCORD_USER_ID=${{ secrets.GANSO_DISCORD_USER_ID }}"
+          terraform apply -auto-approve \
+            -var="TWITTER_TOKEN=${{ secrets.TWITTER_TOKEN }}" \
+            -var="TWITTER_BASE_URL=${{ secrets.TWITTER_BASE_URL }}" \
+            -var="DISCORD_BASE_URL=${{ secrets.DISCORD_BASE_URL }}" \
+            -var="DISCORD_BOT_TOKEN=${{ secrets.DISCORD_BOT_TOKEN }}" \
+            -var="DISCORD_DEFAULT_CHANNEL_ID=${{ secrets.DISCORD_DEFAULT_CHANNEL_ID }}" \
+            -var="DISCORD_BOT_ID=${{ secrets.DISCORD_BOT_ID }}" \
+            -var="GANSO_DISCORD_USER_ID=${{ secrets.GANSO_DISCORD_USER_ID }}"
