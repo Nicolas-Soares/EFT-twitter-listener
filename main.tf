@@ -42,6 +42,7 @@ resource "aws_lambda_function" "eft_twitter_listener" {
   role          = var.lambdaFunctionDefaultRole
   handler       = "index.handler"
   runtime       = "nodejs18.x"
+  filename      = "lambda.zip"
 
   source_code_hash = filebase64sha256("lambda.zip")
 
