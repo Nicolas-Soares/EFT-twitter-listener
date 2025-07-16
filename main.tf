@@ -39,7 +39,7 @@ resource "aws_lambda_function" "eft_twitter_listener" {
 # EVENTBRIDGE DEFINITION
 resource "aws_cloudwatch_event_rule" "eft_twitter_listener_schedule" {
   name = "eft-twitter-listener-schedule"
-  schedule_expression = "rate(8 hours)"
+  schedule_expression = "rate(2 hours)"
   description = "Schedule execution for Lambda function"
 }
 
