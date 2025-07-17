@@ -19,10 +19,14 @@ async function handle() {
     const lastPostId = response.data.data[0].id
     const lastPostUrl = `https://x.com/${userName}/status/${lastPostId}`
 
+    console.log('Last post URL: ', lastPostUrl)
+
     // Validate if post was already sent
     const botLastSentMessage = await getBotLastSentMessageOnDiscord()
     const isLastPostAlreadySent = botLastSentMessage.content.includes(lastPostUrl)
     if (isLastPostAlreadySent) {
+      console.log("Post already sent")
+
       return {
         statusCode: 200,
         body: JSON.stringify("Post already sent"),
@@ -37,6 +41,8 @@ async function handle() {
     
     const message = `${discordMessagePreset} ${lastPostUrl}`
     const sendDiscordMessageResponse = await axiosService.sendDiscordMessage({ message })
+
+    console.log("Message sent successfully: ", message)
 
     return {
       statusCode: 200,
