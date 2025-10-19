@@ -1,30 +1,40 @@
 require('dotenv').config();
 
 // MOCKS
-// const examplePayload = require('../../mocks/example-payload.json');
+const examplePayload = require('../../mocks/example-payload.json');
 const messagePresets = require('./messages/messages-presets.json');
 
 // SERVICES
 const axiosService = require('./services/axios');
+
+// REMOVE AFTER TESTS
+(async () => {
+    await handle();
+})();
 
 async function handle() {
   try {
     const userId = '759683995563094017'
     const userName = 'tarkov'
 
-    const response = await axiosService.getTweets({ userId });
-    // const response = examplePayload
+    let shouldSendMessage = false;
+    let counter = 0;
 
-    // Get last tweet URL
-    const lastPostId = response.data.data[0].id
-    const lastPostUrl = `https://x.com/${userName}/status/${lastPostId}`
+    // const response = await axiosService.getTweets({ userId });
+    const response = examplePayload
+    const last5Posts = response.data.slice(0,5)
+    const last5PostsUrls = last5Posts.map(p => `https://x.com/${userName}/status/${p.id}`)
 
-    console.log('Last post URL: ', lastPostUrl)
+    console.log('Last 5 posts URLs: ', last5PostsUrls)
 
-    // Validate if post was already sent
     const botLastSentMessage = await getBotLastSentMessageOnDiscord()
-    const isLastPostAlreadySent = botLastSentMessage.content.includes(lastPostUrl)
-    if (isLastPostAlreadySent) {
+
+    for (const postUrl of last5PostsUrls) {
+      botLastSentMessage.content.includes(postUrl) ? counter++ : null;
+    }
+
+    if (counter != last5PostsUrls.length) shouldSendMessage = true;
+    if (!shouldSendMessage) {
       console.log("Post already sent")
 
       return {
@@ -39,7 +49,10 @@ async function handle() {
       discordMessagePreset = discordMessagePreset.replace('userId', process.env.GANSO_DISCORD_USER_ID);
     }
     
-    const message = `${discordMessagePreset} ${lastPostUrl}`
+    let message = `${discordMessagePreset}`;
+
+    for (const postUrl of last5PostsUrls) message += `\n-----\n${postUrl}`;
+
     const sendDiscordMessageResponse = await axiosService.sendDiscordMessage({ message })
 
     console.log("Message sent successfully: ", message)
@@ -88,7 +101,7 @@ async function getBotLastSentMessageOnDiscord() {
   }
 }
 
-exports.handler = async (event) => {
-  const response = await handle();
-  return response
-};
+// exports.handler = async (event) => {
+//   const response = await handle();
+//   return response
+// };
