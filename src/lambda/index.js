@@ -23,23 +23,21 @@ async function handle() {
     // const response = await axiosService.getTweets({ userId });
     const response = examplePayload
     const last5Posts = response.data.slice(0,5)
-    const last5PostsUrls = last5Posts.map(p => `https://x.com/${userName}/status/${p.id}`)
+    const last5PostsUrls = last5Posts.map(p => `https://x.com/${userName}/status/${p.id}`) // [0] is the most recent post
+    const botLastSentMessages = await getBotLastSentMessageOnDiscord();
 
-    console.log('Last 5 posts URLs: ', last5PostsUrls)
-
-    const botLastSentMessage = await getBotLastSentMessageOnDiscord()
+    console.log('[LOG] Last posts URLs: ', last5PostsUrls);
+    console.log('[LOG] Bot last sent messages: ', botLastSentMessages)
 
     for (const postUrl of last5PostsUrls) {
-      botLastSentMessage.content.includes(postUrl) ? counter++ : null;
+      botLastSentMessages.some(msg => msg.content.includes(postUrl)) ? counter++ : null;
     }
 
     if (counter != last5PostsUrls.length) shouldSendMessage = true;
     if (!shouldSendMessage) {
-      console.log("Post already sent")
-
       return {
         statusCode: 200,
-        body: JSON.stringify("Post already sent"),
+        body: JSON.stringify("Posts already sent"),
       };
     }
 
@@ -49,20 +47,15 @@ async function handle() {
       discordMessagePreset = discordMessagePreset.replace('userId', process.env.GANSO_DISCORD_USER_ID);
     }
     
-    let message = `${discordMessagePreset}`;
-
-    for (const postUrl of last5PostsUrls) message += `\n-----\n${postUrl}`;
-
-    const sendDiscordMessageResponse = await axiosService.sendDiscordMessage({ message })
-
-    console.log("Message sent successfully: ", message)
+    for (const postUrl of last5PostsUrls) {
+      const message = `${discordMessagePreset}\n-----\n${postUrl}`;
+      const sendMessageResponse = await axiosService.sendDiscordMessage({ message })
+      console.log("[LOG] Message sent: ", { message, sendMessageResponse })
+    }
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: 'Message sent successfully',
-        discordMessage: sendDiscordMessageResponse.data,
-      }),
+      body: JSON.stringify({ message: 'Message sent' }),
     };
   } catch (error) {
     console.error('ERROR', error)
@@ -78,7 +71,7 @@ async function getBotLastSentMessageOnDiscord() {
   const limit = 100;
 
   let oldestMessageId;
-  let botLastSentMessage;
+  let botLastSentMessage = [];
   
   try {
     do {
@@ -89,11 +82,11 @@ async function getBotLastSentMessageOnDiscord() {
 
       const lastMessagesSentOnChannel = getDiscordMessagesResponse.data
       
-          botLastSentMessage = lastMessagesSentOnChannel.find(message => message.author.id === process.env.DISCORD_BOT_ID);
-      if (botLastSentMessage) return botLastSentMessage;
+          botLastSentMessage.push(...lastMessagesSentOnChannel.filter(message => message.author.id === process.env.DISCORD_BOT_ID));
+      if (botLastSentMessage && botLastSentMessage.length >= 5) return botLastSentMessage.slice(0, 5);
   
       oldestMessageId = lastMessagesSentOnChannel[limit - 1].id
-    } while (!botLastSentMessage);
+    } while (botLastSentMessage.length < 5);
   } catch (error) {
     const err = new Error('Error getting bot last sent message on Discord')
           err.details = error
